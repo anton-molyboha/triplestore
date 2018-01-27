@@ -63,6 +63,17 @@ class GraphView extends Component
     nodes.contains(relation.subject) && nodes.contains(relation.verb) && nodes.contains(relation.obj)
   }
 
+  def nodeAtPosition(pos: java.awt.Point): Option[Node] = {
+    def isin(node: Node): Boolean = {
+      val dx = (pos.x - node.x) / node.halfWidth
+      val dy = (pos.y - node.y) / node.halfHeight
+      dx * dx + dy * dy <= 1
+    }
+    // If multiple nodes contain the point, return the last one (as per the iteration order)
+    // since it will be the one drawn on top
+    nodes.values.foldLeft(None: Option[Node])( (old, node) => if( isin(node) ) Some(node) else old )
+  }
+
   override def paint(g: Graphics): Unit = {
     super.paint(g)
     def quadraticFit(ys: IndexedSeq[Double]): (Double) => Double = {
