@@ -1,11 +1,11 @@
 package me.molyboha.anton.triplestore.data.model
 
-trait Notion
+trait Notion[T]
 {
-  val name: Option[String]
-  def asRelation: Option[Relation] = None
-  def subjectOf: Iterator[Relation]
-  def verbOf: Iterator[Relation]
-  def objOf: Iterator[Relation]
-  override def toString: String = name.getOrElse("???")
+  val data: Option[T]
+  def asRelation: Option[Relation[T]] = None
+  def subjectOf: Iterator[Relation[T]]
+  def verbOf: Iterator[Relation[T]]
+  def objOf: Iterator[Relation[T]]
+  override def toString: String = data.map(_.toString).getOrElse("???")
 }

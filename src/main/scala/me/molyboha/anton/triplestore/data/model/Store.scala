@@ -1,7 +1,7 @@
 package me.molyboha.anton.triplestore.data.model
 
-trait Store
+trait Store[T]
 {
-  def notions: Iterator[Notion]
-  def relations: Iterator[Relation] = notions.flatMap( _.asRelation )
+  def notions: Iterator[Notion[T]]
+  def relations: Iterator[Relation[T]] = notions.flatMap( _.asRelation )
 }

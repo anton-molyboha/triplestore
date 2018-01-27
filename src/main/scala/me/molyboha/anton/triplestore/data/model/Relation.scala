@@ -1,10 +1,10 @@
 package me.molyboha.anton.triplestore.data.model
 
-trait Relation extends Notion
+trait Relation[T] extends Notion[T]
 {
-  val subject: Notion
-  val verb: Notion
-  val obj: Notion
+  val subject: Notion[T]
+  val verb: Notion[T]
+  val obj: Notion[T]
 
-  override def asRelation: Option[Relation] = Some(this)
+  override def asRelation: Option[Relation[T]] = Some(this)
 }
