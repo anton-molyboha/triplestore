@@ -8,14 +8,14 @@ import me.molyboha.anton.triplestore.visual.awt.GraphView
 
 object Visualization extends App
 {
-  val store = new InMemoryStore
+  val store = new InMemoryStore[String]
   val subj = store.notion("Scala")
   val verb = store.notion("is")
   val obj = store.notion("Good")
   val rel = store.relation(subj, verb, obj)
 
   val frame = new Frame("Triplestore")
-  val view = new GraphView
+  val view = new GraphView[String]
   view.addNode(subj, 50, 90)
   view.addNode(verb, 150, 50)
   view.addNode(obj, 250, 70)

@@ -5,10 +5,10 @@ import java.awt.{Component, Graphics}
 import me.molyboha.anton.triplestore.data.model.{Notion, Relation}
 
 // GUI has three components: visualization, layout and control
-class GraphView extends Component
+class GraphView[T] extends Component
 {
   import GraphView._
-  class Node(val notion: Notion, x0: Double, y0: Double)
+  class Node(val notion: Notion[T], x0: Double, y0: Double)
   {
     private var xx = x0
     private var yy = y0
@@ -30,10 +30,10 @@ class GraphView extends Component
     val halfHeight: Int = 5
   }
 
-  private var nodes: Map[Notion, Node] = Map()
-  private var edges: Set[Relation] = Set()
+  private var nodes: Map[Notion[T], Node] = Map()
+  private var edges: Set[Relation[T]] = Set()
 
-  def addNode(notion: Notion, x: Double, y: Double): Node = {
+  def addNode(notion: Notion[T], x: Double, y: Double): Node = {
     if( nodes contains notion ) {
       val res = nodes(notion)
       res.x = x
@@ -53,13 +53,13 @@ class GraphView extends Component
     }
   }
 
-  def removeNode(notion: Notion): Unit = {
+  def removeNode(notion: Notion[T]): Unit = {
     nodes -= notion
     edges = edges.filterNot( (rel) => rel.subject == notion || rel.verb == notion || rel.obj == notion )
     invalidate()
   }
 
-  private def shouldIncludeRelation(relation: Relation): Boolean = {
+  private def shouldIncludeRelation(relation: Relation[T]): Boolean = {
     nodes.contains(relation.subject) && nodes.contains(relation.verb) && nodes.contains(relation.obj)
   }
 
