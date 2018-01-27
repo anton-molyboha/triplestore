@@ -25,23 +25,32 @@ class GraphView extends Component
       yy = v
       GraphView.this.invalidate()
     }
+
+    val halfWidth: Int = 10 * notion.toString.length
+    val halfHeight: Int = 5
   }
 
   private var nodes: Map[Notion, Node] = Map()
   private var edges: Set[Relation] = Set()
 
   def addNode(notion: Notion, x: Double, y: Double): Node = {
-    val res = new Node(notion, x, y)
-    nodes += notion -> res
-    for( relLst <- Seq(notion.subjectOf, notion.verbOf, notion.objOf) ; rel <- relLst )
-    {
-      if( shouldIncludeRelation(rel) )
-      {
-        edges += rel
-      }
+    if( nodes contains notion ) {
+      val res = nodes(notion)
+      res.x = x
+      res.y = y
+      res
     }
-    invalidate()
-    res
+    else {
+      val res = new Node(notion, x, y)
+      nodes += notion -> res
+      for (relLst <- Seq(notion.subjectOf, notion.verbOf, notion.objOf); rel <- relLst) {
+        if (shouldIncludeRelation(rel)) {
+          edges += rel
+        }
+      }
+      invalidate()
+      res
+    }
   }
 
   def removeNode(notion: Notion): Unit = {
@@ -91,10 +100,10 @@ class GraphView extends Component
     for( node <- nodes.values ) {
       val str = node.notion.toString
       g.setColor(java.awt.Color.WHITE)
-      g.fillOval((node.x - 10 * str.length).toInt, (node.y - 10).toInt, 20 * str.length, 20)
+      g.fillOval((node.x - node.halfWidth).toInt, (node.y - node.halfHeight).toInt, 2 * node.halfWidth, 2 * node.halfHeight)
       g.setColor(java.awt.Color.BLACK)
-      g.drawOval((node.x - 10 * str.length).toInt, (node.y - 10).toInt, 20 * str.length, 20)
-      g.drawString(str, (node.x - 5 * str.length()).toInt, (node.y + 5).toInt)
+      g.drawOval((node.x - node.halfWidth).toInt, (node.y - node.halfHeight).toInt, 2 * node.halfWidth, 2 * node.halfHeight)
+      g.drawString(str, (node.x - node.halfWidth / 2).toInt, (node.y + node.halfHeight / 2).toInt)
     }
   }
 }
