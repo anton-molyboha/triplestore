@@ -1,6 +1,6 @@
 package me.molyboha.anton.triplestore.data.model
 
-trait Notion[T]
+trait Notion[+T]
 {
   val data: Option[T]
   def asRelation: Option[Relation[T]] = None

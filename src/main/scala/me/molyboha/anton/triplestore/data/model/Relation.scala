@@ -1,6 +1,6 @@
 package me.molyboha.anton.triplestore.data.model
 
-trait Relation[T] extends Notion[T]
+trait Relation[+T] extends Notion[T]
 {
   val subject: Notion[T]
   val verb: Notion[T]
