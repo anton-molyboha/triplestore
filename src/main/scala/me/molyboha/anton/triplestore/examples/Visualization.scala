@@ -16,13 +16,13 @@ object Visualization extends App
 
   val frame = new Frame("Triplestore")
   val view = new GraphView
-  view.addNode(subj, 50, 50)
-  view.addNode(verb, 100, 50)
-  view.addNode(obj, 150, 50)
+  view.addNode(subj, 50, 90)
+  view.addNode(verb, 150, 50)
+  view.addNode(obj, 250, 70)
   frame.add(view)
   frame.addWindowListener(new WindowAdapter {
     override def windowClosing(e: WindowEvent): Unit = frame.dispose()
   })
   frame.setVisible(true)
-  frame.setSize(200, 100)
+  frame.setSize(300, 200)
 }
