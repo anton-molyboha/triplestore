@@ -7,8 +7,8 @@ class InMemoryStore[T] extends model.Factory[T] with model.Store[T]
 
   private var data: List[Notion[T]] = List()
 
-  override def notion(dat: T): model.Notion[T] = {
-    val res = new Notion(this, Some(dat))
+  override def notion(dat: Option[T]): model.Notion[T] = {
+    val res = new Notion(this, dat)
     data ::= res
     res
   }
