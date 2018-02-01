@@ -19,6 +19,39 @@ class CentralView[T](startingNotion: Notion[T], val radius: Int = 2, layout: (It
     }
   }
 
+  private var _pinned: Set[Notion[T]] = Set()
+  def pinned: Set[Notion[T]] = _pinned
+  def pin(node: Notion[T]): Unit = {
+    if( ! _pinned.contains(node) ) {
+      _pinned += node
+      if( view.nodes.contains(node) ) {
+        view.nodes(node).color = nodeColor(node)
+      }
+      else updateLayout()
+    }
+  }
+  def unpin(node: Notion[T]): Unit = {
+    if( _pinned.contains(node) ) {
+      _pinned -= node
+      updateLayout()
+    }
+  }
+
+  private val defaultColor = new Color(0.9.toFloat, 0.9.toFloat, 0.9.toFloat)
+  private val pinnedColor = new Color(1.0.toFloat, 1.0.toFloat, 1.0.toFloat)
+  private val centralColor = new Color(0.toFloat, 0.9.toFloat, 0.9.toFloat)
+  private val pinnedCentralColor = new Color(0.toFloat, 1.0.toFloat, 1.0.toFloat)
+  private def nodeColor(node: Notion[T]): Color = {
+    if( _pinned.contains(node) ) {
+      if( node == _center ) pinnedCentralColor
+      else pinnedColor
+    }
+    else {
+      if( node == _center ) centralColor
+      else defaultColor
+    }
+  }
+
   updateLayout()
   private def updateLayout(): Unit = {
     for( node <- view.nodes.keys ) view.removeNode(node)
@@ -32,15 +65,19 @@ class CentralView[T](startingNotion: Notion[T], val radius: Int = 2, layout: (It
       }
       else startSet
     }
-    val _currentlyDrawn = computeToDraw(Set(_center), Set(_center), radius)
+    val _currentlyDrawn = computeToDraw(_pinned + _center, _pinned + _center, radius)
     layout(_currentlyDrawn, view)
-    view.nodes(_center).color = Color.CYAN
+    for( node <- view.nodes.values ) node.color = nodeColor(node.notion)
   }
 
   view.addMouseListener(new MouseAdapter {
     override def mouseClicked(e: MouseEvent): Unit = {
       for( node <- view.nodeAtPosition(e.getPoint) ) {
-        center = node.notion
+        if( node.notion == center ) {
+          if( pinned.contains(node.notion) ) unpin(node.notion)
+          else pin(node.notion)
+        }
+        else center = node.notion
       }
     }
   })
