@@ -32,6 +32,12 @@ class SqlStore(connectionString: String) extends Store[String] {
       val sqlres = statement.executeQuery()
       SqlUtils.iterate(sqlres, relationMapper _).next()
     })
+
+    override def equals(other: scala.Any): Boolean = other match {
+      case that: SqlNotion => that.id == id
+      case _ => false
+    }
+    override def hashCode(): Int = id
   }
   protected object SqlNotion {
     def apply(id: Int, name: Option[String], asrelation: Option[Int]): SqlNotion = {
@@ -49,7 +55,7 @@ class SqlStore(connectionString: String) extends Store[String] {
   }
 
   private val notionByIdStatement = connection.prepareStatement("SELECT id, name, asrelation FROM notion WHERE id = ?")
-  private def notionById(id: Int): SqlNotion = {
+  protected def notionById(id: Int): SqlNotion = {
     notionByIdStatement.setInt(1, id)
     val resultSet = notionByIdStatement.executeQuery()
     SqlUtils.iterate(resultSet, SqlNotion.apply _).next()
