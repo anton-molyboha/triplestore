@@ -27,7 +27,7 @@ class GraphView[T] extends Component
     }
 
     val halfWidth: Int = 10 * notion.toString.length
-    val halfHeight: Int = 5
+    val halfHeight: Int = 10
   }
 
   private var nodes: Map[Notion[T], Node] = Map()
