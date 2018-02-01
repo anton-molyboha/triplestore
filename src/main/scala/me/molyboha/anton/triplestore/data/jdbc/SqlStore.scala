@@ -86,5 +86,17 @@ class SqlStore(connectionString: String) extends Store[String] {
 }
 
 object SqlStore {
-
+  def checkIntegrity(connection: java.sql.Connection): Unit = {
+    val statements = List(
+      connection.prepareStatement("SELECT COUNT(relation.id) FROM notion, relation WHERE notion.id = relation.asnotion AND notion.asrelation IS NULL"),
+      connection.prepareStatement("SELECT COUNT(relation.id) FROM notion, relation WHERE notion.id = relation.asnotion AND notion.asrelation <> relation.id"),
+      connection.prepareStatement("SELECT COUNT(relation.id) FROM notion, relation WHERE notion.asrelation = relation.id AND relation.asnotion <> notion.id")
+    )
+    for( statement <- statements ) {
+      val resultSet = statement.executeQuery()
+      assert(resultSet.next())
+      assert(resultSet.getInt(1) == 0)
+      resultSet.close()
+    }
+  }
 }
