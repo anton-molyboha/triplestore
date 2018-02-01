@@ -30,19 +30,20 @@ class GraphView[T] extends Component
     val halfHeight: Int = 10
   }
 
-  private var nodes: Map[Notion[T], Node] = Map()
+  private var _nodes: Map[Notion[T], Node] = Map()
   private var edges: Set[Relation[T]] = Set()
+  def nodes: Map[Notion[T], Node] = _nodes
 
   def addNode(notion: Notion[T], x: Double, y: Double): Node = {
-    if( nodes contains notion ) {
-      val res = nodes(notion)
+    if( _nodes contains notion ) {
+      val res = _nodes(notion)
       res.x = x
       res.y = y
       res
     }
     else {
       val res = new Node(notion, x, y)
-      nodes += notion -> res
+      _nodes += notion -> res
       for (relLst <- Seq(notion.subjectOf, notion.verbOf, notion.objOf); rel <- relLst) {
         if (shouldIncludeRelation(rel)) {
           edges += rel
@@ -54,13 +55,13 @@ class GraphView[T] extends Component
   }
 
   def removeNode(notion: Notion[T]): Unit = {
-    nodes -= notion
+    _nodes -= notion
     edges = edges.filterNot( (rel) => rel.subject == notion || rel.verb == notion || rel.obj == notion )
     repaint()
   }
 
   private def shouldIncludeRelation(relation: Relation[T]): Boolean = {
-    nodes.contains(relation.subject) && nodes.contains(relation.verb) && nodes.contains(relation.obj)
+    _nodes.contains(relation.subject) && _nodes.contains(relation.verb) && _nodes.contains(relation.obj)
   }
 
   def nodeAtPosition(pos: java.awt.Point): Option[Node] = {
@@ -71,7 +72,7 @@ class GraphView[T] extends Component
     }
     // If multiple nodes contain the point, return the last one (as per the iteration order)
     // since it will be the one drawn on top
-    nodes.values.foldLeft(None: Option[Node])( (old, node) => if( isin(node) ) Some(node) else old )
+    _nodes.values.foldLeft(None: Option[Node])( (old, node) => if( isin(node) ) Some(node) else old )
   }
 
   override def paint(g: Graphics): Unit = {
@@ -91,7 +92,7 @@ class GraphView[T] extends Component
     }
     for( rel <- edges ) {
       // Quadratic spline: fit a quadratic to x and y coordinates
-      val relnodes = IndexedSeq(nodes(rel.subject), nodes(rel.verb), nodes(rel.obj))
+      val relnodes = IndexedSeq(_nodes(rel.subject), _nodes(rel.verb), _nodes(rel.obj))
       val xfit = quadraticFit(relnodes.map( _.x ))
       val yfit = quadraticFit(relnodes.map( _.y ))
       val npts = 10
@@ -108,7 +109,7 @@ class GraphView[T] extends Component
       val arrow2 = arrowCoords((xfit(0.4), yfit(0.4)), (xfit(0.5), yfit(0.5)))
       g.drawPolyline(arrow2._1, arrow2._2, arrow2._1.length)
     }
-    for( node <- nodes.values ) {
+    for( node <- _nodes.values ) {
       val str = node.notion.toString
       g.setColor(java.awt.Color.WHITE)
       g.fillOval((node.x - node.halfWidth).toInt, (node.y - node.halfHeight).toInt, 2 * node.halfWidth, 2 * node.halfHeight)
