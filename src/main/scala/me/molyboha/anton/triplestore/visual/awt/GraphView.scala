@@ -18,12 +18,12 @@ class GraphView[T] extends Component
 
     def x_=(v: Double): Unit = {
       xx = v
-      GraphView.this.invalidate()
+      GraphView.this.repaint()
     }
 
     def y_=(v: Double): Unit = {
       yy = v
-      GraphView.this.invalidate()
+      GraphView.this.repaint()
     }
 
     val halfWidth: Int = 10 * notion.toString.length
@@ -48,7 +48,7 @@ class GraphView[T] extends Component
           edges += rel
         }
       }
-      invalidate()
+      repaint()
       res
     }
   }
@@ -56,7 +56,7 @@ class GraphView[T] extends Component
   def removeNode(notion: Notion[T]): Unit = {
     nodes -= notion
     edges = edges.filterNot( (rel) => rel.subject == notion || rel.verb == notion || rel.obj == notion )
-    invalidate()
+    repaint()
   }
 
   private def shouldIncludeRelation(relation: Relation[T]): Boolean = {
