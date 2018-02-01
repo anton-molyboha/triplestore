@@ -1,6 +1,6 @@
 package me.molyboha.anton.triplestore.visual.awt
 
-import java.awt.{BorderLayout, Panel}
+import java.awt.{BorderLayout, Color, Panel}
 import java.awt.event.{ComponentAdapter, ComponentEvent, MouseAdapter, MouseEvent}
 
 import me.molyboha.anton.triplestore.data.model.Notion
@@ -34,6 +34,7 @@ class CentralView[T](startingNotion: Notion[T], val radius: Int = 2, layout: (It
     }
     val _currentlyDrawn = computeToDraw(Set(_center), Set(_center), radius)
     layout(_currentlyDrawn, view)
+    view.nodes(_center).color = Color.CYAN
   }
 
   view.addMouseListener(new MouseAdapter {
