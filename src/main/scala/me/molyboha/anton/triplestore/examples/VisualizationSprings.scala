@@ -31,5 +31,5 @@ object VisualizationSprings extends App
   frame.setVisible(true)
   frame.setSize(800, 500)
 
-  SpringAutoLayout(store.notions.filter(_.asRelation.isEmpty).toIterable, view)
+  java.awt.EventQueue.invokeLater(() => SpringAutoLayout(store.notions.filter(_.asRelation.isEmpty).toIterable, view))
 }
