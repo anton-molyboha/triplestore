@@ -65,7 +65,7 @@ class SpringSolver[T] {
     def relax(pos: Array[Vector], maxIter: Int = 1000): Unit = {
       if( maxIter > 0 ) {
         val g = forces(pos)
-        if (g.iterator.map(_.norm > eps * forceUnit).reduceLeft(_ || _)) {
+        if (g.nonEmpty && g.iterator.map(_.norm > eps * forceUnit).reduceLeft(_ || _)) {
           for (i <- 0 until numnodes) {
             pos(i) += g(i) * 0.01 / strengthUnit
           }
