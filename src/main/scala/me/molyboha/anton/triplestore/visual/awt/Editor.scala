@@ -77,13 +77,14 @@ class Editor(factory: model.Factory[String], startingNotion: Notion[String]) ext
     add(dataText)
   }
 
-  val view = new CentralView[String](startingNotion, 2, SpringAutoLayout.apply)
+  val graphView = new GraphView[String]
+  val view = new CentralView[String](graphView, startingNotion, 2, SpringAutoLayout.apply(_, graphView))
   val notionAdder = new NotionAdder
   val relationAdder = new RelationAdder
 
   val topPanel = new Panel
   topPanel.add(notionAdder)
   topPanel.add(relationAdder)
-  add(view)
+  add(graphView)
   add(topPanel, BorderLayout.NORTH)
 }

@@ -23,7 +23,8 @@ object VisualizationCentral extends App
 
 
   val frame = new Frame("Triplestore")
-  val view = new CentralView[String](jas, 2, SpringAutoLayout.apply)
+  val view = new GraphView[String]
+  new CentralView[String](view, jas, 2, SpringAutoLayout.apply(_, view))
   frame.add(view)
   frame.addWindowListener(new WindowAdapter {
     override def windowClosing(e: WindowEvent): Unit = frame.dispose()

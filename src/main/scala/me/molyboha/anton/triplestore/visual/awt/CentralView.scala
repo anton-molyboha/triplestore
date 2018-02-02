@@ -5,10 +5,7 @@ import java.awt.event.{ComponentAdapter, ComponentEvent, MouseAdapter, MouseEven
 
 import me.molyboha.anton.triplestore.data.model.Notion
 
-class CentralView[T](startingNotion: Notion[T], val radius: Int = 2, layout: (Iterable[Notion[T]], GraphView[T]) => Unit) extends Panel(new BorderLayout) {
-  private val view = new GraphView[T]
-  add(view)
-  view.setVisible(true)
+class CentralView[T](view: GraphViewBase[T], startingNotion: Notion[T], val radius: Int = 2, layout: (Iterable[Notion[T]]) => Unit) {
 
   private var _center: Notion[T] = startingNotion
   def center: Notion[T] = _center
@@ -66,7 +63,7 @@ class CentralView[T](startingNotion: Notion[T], val radius: Int = 2, layout: (It
       else startSet
     }
     val _currentlyDrawn = computeToDraw(_pinned + _center, _pinned + _center, radius)
-    layout(_currentlyDrawn, view)
+    layout(_currentlyDrawn)
     for( node <- view.nodes.values ) node.color = nodeColor(node.notion)
   }
 
@@ -82,12 +79,12 @@ class CentralView[T](startingNotion: Notion[T], val radius: Int = 2, layout: (It
     }
   })
 
-  addComponentListener(new ComponentAdapter {
+  view.addComponentListener(new ComponentAdapter {
     override def componentResized(e: ComponentEvent): Unit = {
       val curCenterX = view.nodes.values.map( _.x ).sum / view.nodes.size.toDouble
       val curCenterY = view.nodes.values.map( _.y ).sum / view.nodes.size.toDouble
-      val shiftX = 0.5 * getWidth - curCenterX
-      val shiftY = 0.5 * getHeight - curCenterY
+      val shiftX = 0.5 * view.getWidth - curCenterX
+      val shiftY = 0.5 * view.getHeight - curCenterY
       for( node <- view.nodes.values ) {
         node.x += shiftX
         node.y += shiftY
