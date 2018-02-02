@@ -5,37 +5,8 @@ import java.awt.{Color, Component, Graphics, Point}
 import me.molyboha.anton.triplestore.data.model.{Notion, Relation}
 
 // GUI has three components: visualization, layout and control
-class GraphView2[T] extends Component
+class GraphView2[T] extends GraphViewBase[T]
 {
-  abstract class NodeBase(val notion: Notion[T], x0: Double, y0: Double)
-  {
-    private var xx = x0
-    private var yy = y0
-    private var _color = Color.WHITE
-
-    def x: Double = xx
-    def y: Double = yy
-    def color: Color = _color
-
-    def x_=(v: Double): Unit = {
-      xx = v
-      GraphView2.this.repaint()
-    }
-
-    def y_=(v: Double): Unit = {
-      yy = v
-      GraphView2.this.repaint()
-    }
-
-    def color_=(c: Color): Unit = {
-      _color = c
-      GraphView2.this.repaint()
-    }
-
-    def paint(g: Graphics): Unit
-    def isin(pos: java.awt.Point): Boolean
-  }
-
   class NotionNode(notion: Notion[T], x0: Double, y0: Double) extends NodeBase(notion, x0, y0) {
     val halfWidth: Int = 10 * notion.toString.length
     val halfHeight: Int = 10
@@ -132,7 +103,7 @@ class GraphView2[T] extends Component
 
   private var _nodes: Map[Notion[T], NotionNode] = Map()
   private var _edges: Map[Relation[T], RelationNode] = Map()
-  def nodes: Map[Notion[T], NodeBase] = _nodes ++ _edges
+  override def nodes: Map[Notion[T], NodeBase] = _nodes ++ _edges
 
   def addNode(notion: Notion[T], x: Double, y: Double): NotionNode = {
     if( _nodes contains notion ) {
@@ -176,16 +147,6 @@ class GraphView2[T] extends Component
   def removeRelation(relation: Relation[T]): Unit = {
     _edges -= relation
     repaint()
-  }
-
-  private def shouldIncludeRelation(relation: Relation[T]): Boolean = {
-    _nodes.contains(relation.subject) && _nodes.contains(relation.obj)
-  }
-
-  def nodeAtPosition(pos: java.awt.Point): Option[NodeBase] = {
-    // If multiple nodes contain the point, return the last one (as per the iteration order)
-    // since it will be the one drawn on top
-    _nodes.values.foldLeft(None: Option[NodeBase])( (old, node) => if( node.isin(pos) ) Some(node) else old )
   }
 
   override def paint(g: Graphics): Unit = {

@@ -38,6 +38,7 @@ object SpringAutoLayout {
       viewCenter - layoutCenter
     }
     Console.println("Shift: " + shift)
+    for( node <- view.nodes.keys ) view.removeNode(node)
     for( notionPos <- layout ) {
       val notion = notionPos._1
       val pos = notionPos._2

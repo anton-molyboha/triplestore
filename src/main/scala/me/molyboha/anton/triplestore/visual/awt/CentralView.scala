@@ -55,7 +55,6 @@ class CentralView[T](startingNotion: Notion[T], val radius: Int = 2, layout: (It
 
   updateLayout()
   def updateLayout(): Unit = {
-    for( node <- view.nodes.keys ) view.removeNode(node)
     def computeToDraw(startSet: Set[Notion[T]], expandSet: Set[Notion[T]], radius: Int): Set[Notion[T]] = {
       if( radius > 0 ) {
         val expansion = expandSet.flatMap((node) =>

@@ -34,6 +34,10 @@ object SpringAutoLayout2 {
       val layoutCenter = (bbox._1 + bbox._2) / 2
       viewCenter - layoutCenter
     }
+    for( node <- view.nodes.keys ) {
+      for( rel <- node.asRelation ) view.removeRelation(rel)
+      view.removeNode(node)
+    }
     for( notion <- nodes ) {
       val pos = layout(notion)
       view.addNode(notion, pos.x + shift.x, pos.y + shift.y)
