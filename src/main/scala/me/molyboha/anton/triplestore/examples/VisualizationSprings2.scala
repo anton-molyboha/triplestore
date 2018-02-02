@@ -4,10 +4,10 @@ import java.awt.Frame
 import java.awt.event.{WindowAdapter, WindowEvent}
 
 import me.molyboha.anton.triplestore.data.InMemoryStore
-import me.molyboha.anton.triplestore.visual.awt.{CentralView, GraphView}
-import me.molyboha.anton.triplestore.visual.awt.layout.SpringAutoLayout
+import me.molyboha.anton.triplestore.visual.awt.GraphView2
+import me.molyboha.anton.triplestore.visual.awt.layout.SpringAutoLayout2
 
-object VisualizationCentral extends App
+object VisualizationSprings2 extends App
 {
   val store = new InMemoryStore[String]
   val likes = store.notion("Likes")
@@ -23,12 +23,13 @@ object VisualizationCentral extends App
 
 
   val frame = new Frame("Triplestore")
-  val view = new GraphView[String]
-  new CentralView[String](view, jas, 2, SpringAutoLayout.apply(_, view))
+  val view = new GraphView2[String]
   frame.add(view)
   frame.addWindowListener(new WindowAdapter {
     override def windowClosing(e: WindowEvent): Unit = frame.dispose()
   })
   frame.setVisible(true)
   frame.setSize(800, 500)
+
+  java.awt.EventQueue.invokeLater(() => SpringAutoLayout2(store.notions.filter(_.asRelation.isEmpty).toIterable, view))
 }

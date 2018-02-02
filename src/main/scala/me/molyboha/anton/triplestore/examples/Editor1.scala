@@ -23,7 +23,7 @@ object Editor1 extends App
 
 
   val frame = new Frame("Triplestore")
-  val view = new Editor(store, jas)
+  val view = new Editor(store, jas, Editor.FullView)
   frame.add(view)
   frame.addWindowListener(new WindowAdapter {
     override def windowClosing(e: WindowEvent): Unit = frame.dispose()

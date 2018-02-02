@@ -5,41 +5,34 @@ import java.awt.{Color, Component, Graphics}
 import me.molyboha.anton.triplestore.data.model.{Notion, Relation}
 
 // GUI has three components: visualization, layout and control
-class GraphView[T] extends Component
+class GraphView[T] extends GraphViewBase[T]
 {
   import GraphView._
-  class Node(val notion: Notion[T], x0: Double, y0: Double)
-  {
-    private var xx = x0
-    private var yy = y0
-    private var _color = Color.WHITE
 
-    def x: Double = xx
-    def y: Double = yy
-    def color: Color = _color
-
-    def x_=(v: Double): Unit = {
-      xx = v
-      GraphView.this.repaint()
-    }
-
-    def y_=(v: Double): Unit = {
-      yy = v
-      GraphView.this.repaint()
-    }
-
-    def color_=(c: Color): Unit = {
-      _color = c
-      GraphView.this.repaint()
-    }
-
+  class Node(notion: Notion[T], x0: Double, y0: Double) extends NodeBase(notion, x0, y0) {
     val halfWidth: Int = 10 * notion.toString.length
     val halfHeight: Int = 10
+
+    override def paint(g: Graphics): Unit = {
+      val str = notion.toString
+      g.setColor(color)
+      g.fillOval((x - halfWidth).toInt, (y - halfHeight).toInt, 2 * halfWidth, 2 * halfHeight)
+      g.setColor(java.awt.Color.BLACK)
+      g.drawOval((x - halfWidth).toInt, (y - halfHeight).toInt, 2 * halfWidth, 2 * halfHeight)
+      g.drawString(str, (x - halfWidth / 2).toInt, (y + halfHeight / 2).toInt)
+    }
+
+
+    override def isin(pos: java.awt.Point): Boolean = {
+      val dx = (pos.x - x) / halfWidth
+      val dy = (pos.y - y) / halfHeight
+      dx * dx + dy * dy <= 1
+    }
   }
 
   private var _nodes: Map[Notion[T], Node] = Map()
   private var edges: Set[Relation[T]] = Set()
-  def nodes: Map[Notion[T], Node] = _nodes
+  override def nodes: Map[Notion[T], Node] = _nodes
 
   def addNode(notion: Notion[T], x: Double, y: Double): Node = {
     if( _nodes contains notion ) {
@@ -71,19 +64,7 @@ class GraphView[T] extends Component
     _nodes.contains(relation.subject) && _nodes.contains(relation.verb) && _nodes.contains(relation.obj)
   }
 
-  def nodeAtPosition(pos: java.awt.Point): Option[Node] = {
-    def isin(node: Node): Boolean = {
-      val dx = (pos.x - node.x) / node.halfWidth
-      val dy = (pos.y - node.y) / node.halfHeight
-      dx * dx + dy * dy <= 1
-    }
-    // If multiple nodes contain the point, return the last one (as per the iteration order)
-    // since it will be the one drawn on top
-    _nodes.values.foldLeft(None: Option[Node])( (old, node) => if( isin(node) ) Some(node) else old )
-  }
-
   override def paint(g: Graphics): Unit = {
-    super.paint(g)
     def quadraticFit(ys: IndexedSeq[Double]): (Double) => Double = {
       val b = (ys(2) - ys(0)) / 2
       val c = ys(1)
@@ -116,14 +97,7 @@ class GraphView[T] extends Component
       val arrow2 = arrowCoords((xfit(0.4), yfit(0.4)), (xfit(0.5), yfit(0.5)))
       g.drawPolyline(arrow2._1, arrow2._2, arrow2._1.length)
     }
-    for( node <- _nodes.values ) {
-      val str = node.notion.toString
-      g.setColor(node.color)
-      g.fillOval((node.x - node.halfWidth).toInt, (node.y - node.halfHeight).toInt, 2 * node.halfWidth, 2 * node.halfHeight)
-      g.setColor(java.awt.Color.BLACK)
-      g.drawOval((node.x - node.halfWidth).toInt, (node.y - node.halfHeight).toInt, 2 * node.halfWidth, 2 * node.halfHeight)
-      g.drawString(str, (node.x - node.halfWidth / 2).toInt, (node.y + node.halfHeight / 2).toInt)
-    }
+    for( node <- _nodes.values ) node.paint(g)
   }
 }
 
