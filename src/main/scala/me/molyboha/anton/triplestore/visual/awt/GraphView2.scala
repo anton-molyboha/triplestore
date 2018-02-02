@@ -165,6 +165,9 @@ class GraphView2[T] extends Component
     else {
       val res = new RelationNode(relation, x, y)
       _edges += relation -> res
+      if( _nodes.contains(relation) ) {
+        _nodes -= relation
+      }
       repaint()
       res
     }
