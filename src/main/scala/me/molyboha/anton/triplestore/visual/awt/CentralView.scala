@@ -57,7 +57,9 @@ class CentralView[T](view: GraphViewBase[T], startingNotion: Notion[T], val radi
         val expansion = expandSet.flatMap((node) =>
           node.subjectOf.map(_.verb) ++ node.subjectOf.map(_.obj) ++
             node.objOf.map(_.subject) ++ node.objOf.map(_.verb) ++
-            node.verbOf.map(_.subject) ++ node.verbOf.map(_.obj))
+            node.verbOf.map(_.subject) ++ node.verbOf.map(_.obj) ++
+            node.asRelation.map(_.subject) ++ node.asRelation.map(_.verb) ++ node.asRelation.map(_.obj)
+        )
         computeToDraw(startSet ++ expansion, expansion.filterNot(startSet), radius - 1)
       }
       else startSet

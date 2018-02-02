@@ -5,9 +5,9 @@ import java.awt._
 
 import me.molyboha.anton.triplestore.data.model
 import me.molyboha.anton.triplestore.data.model.Notion
-import me.molyboha.anton.triplestore.visual.awt.layout.SpringAutoLayout
+import me.molyboha.anton.triplestore.visual.awt.layout.{SpringAutoLayout, SpringAutoLayout2}
 
-class Editor(factory: model.Factory[String], startingNotion: Notion[String]) extends Panel(new BorderLayout()){
+class Editor(factory: model.Factory[String], startingNotion: Notion[String], viewKind: Editor.ViewKind) extends Panel(new BorderLayout()) {
   class NotionAdder extends Panel {
     val editBox = new TextField(20)
     val button = new Button("New")
@@ -77,8 +77,8 @@ class Editor(factory: model.Factory[String], startingNotion: Notion[String]) ext
     add(dataText)
   }
 
-  val graphView = new GraphView[String]
-  val view = new CentralView[String](graphView, startingNotion, 2, SpringAutoLayout.apply(_, graphView))
+  val (graphView, layoutFun) = viewKind.createView
+  val view = new CentralView[String](graphView, startingNotion, 2, layoutFun)
   val notionAdder = new NotionAdder
   val relationAdder = new RelationAdder
 
@@ -87,4 +87,22 @@ class Editor(factory: model.Factory[String], startingNotion: Notion[String]) ext
   topPanel.add(relationAdder)
   add(graphView)
   add(topPanel, BorderLayout.NORTH)
+}
+
+object Editor {
+  trait ViewKind {
+    def createView: (GraphViewBase[String], (Iterable[Notion[String]]) => Unit)
+  }
+  object SimpleView extends ViewKind {
+    override def createView: (GraphViewBase[String], (Iterable[Notion[String]]) => Unit) = {
+      val res = new GraphView[String]
+      (res, SpringAutoLayout(_, res))
+    }
+  }
+  object FullView extends ViewKind {
+    override def createView: (GraphViewBase[String], (Iterable[Notion[String]]) => Unit) = {
+      val res = new GraphView2[String]
+      (res, SpringAutoLayout2(_, res))
+    }
+  }
 }

@@ -92,11 +92,19 @@ class GraphView2[T] extends GraphViewBase[T]
     override def isin(pos: Point): Boolean = {
       val geom = geometry
       val edges = geom.arrow.sliding(2) ++ Seq(Seq(geom.arrow.last, geom.arrow.head))
+      Console.println(pos)
       val numRightIntersections = edges.
-        count( (ps) => ((ps(0).y - pos.y) * (ps(1).y - pos.y) < 0 || ps(0).y == pos.y) &&
-               (ps(0).y != ps(1).y) &&
-               (pos.x < (pos.y - ps(0).y) / (ps(1).y - ps(0).y) * ps(1).x +
-                        (pos.y - ps(1).y) / (ps(0).y - ps(1).y) * ps(0).x) )
+        count( { case Seq(pt0: Point, pt1: Point) =>
+          val correctYBand = (pt0.y - pos.y) * (pt1.y - pos.y) < 0
+          if( correctYBand ) {
+            val intersectionX = (pos.y - pt0.y) / (pt1.y - pt0.y).toDouble * pt1.x +
+                                (pos.y - pt1.y) / (pt0.y - pt1.y).toDouble * pt0.x
+            pos.x < intersectionX
+          }
+          else {
+            pt0.y == pos.y && pos.x < pt0.x
+          }
+        } )
       (numRightIntersections & 1) != 0
     }
   }
