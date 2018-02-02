@@ -33,7 +33,8 @@ class CentralView[T](startingNotion: Notion[T], val radius: Int = 2, layout: (It
   def unpin(node: Notion[T]): Unit = {
     if( _pinned.contains(node) ) {
       _pinned -= node
-      updateLayout()
+      if( node == center ) view.nodes(node).color = nodeColor(node)
+      else updateLayout()
     }
   }
 
@@ -53,7 +54,7 @@ class CentralView[T](startingNotion: Notion[T], val radius: Int = 2, layout: (It
   }
 
   updateLayout()
-  private def updateLayout(): Unit = {
+  def updateLayout(): Unit = {
     for( node <- view.nodes.keys ) view.removeNode(node)
     def computeToDraw(startSet: Set[Notion[T]], expandSet: Set[Notion[T]], radius: Int): Set[Notion[T]] = {
       if( radius > 0 ) {
