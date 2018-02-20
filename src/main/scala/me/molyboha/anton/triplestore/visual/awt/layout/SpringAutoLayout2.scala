@@ -32,7 +32,7 @@ object SpringAutoLayout2 {
         solver.addSpring(rel.subject, rel, 0, SpringSolver.Prefer())
         solver.addSpring(rel.obj, rel, 0, SpringSolver.Prefer())
         if (nodes.contains(rel.verb)) {
-          solver.addSpring(rel.verb, rel, distanceUnit, SpringSolver.Prefer())
+          solver.addSpring(rel.verb, rel, distanceUnit, SpringSolver.Prefer(), 0.1)
         }
       }
 

@@ -7,7 +7,7 @@ import me.molyboha.anton.triplestore.data.model
 import me.molyboha.anton.triplestore.data.model.Notion
 import me.molyboha.anton.triplestore.visual.awt.layout.{SpringAutoLayout, SpringAutoLayout2}
 
-class Editor(factory: model.Factory[String], startingNotion: Notion[String], viewKind: Editor.ViewKind) extends Panel(new BorderLayout()) {
+class Editor(factory: model.Factory[String], startingNotion: Notion[String], viewKind: Editor.ViewKind, radius: Int = 2) extends Panel(new BorderLayout()) {
   class NotionAdder extends Panel {
     val editBox = new TextField(20)
     val button = new Button("New")
@@ -78,7 +78,7 @@ class Editor(factory: model.Factory[String], startingNotion: Notion[String], vie
   }
 
   val (graphView, layoutFun) = viewKind.createView
-  val view = new CentralView[String](graphView, startingNotion, 2, layoutFun)
+  val view = new CentralView[String](graphView, startingNotion, radius, layoutFun)
   val notionAdder = new NotionAdder
   val relationAdder = new RelationAdder
 
