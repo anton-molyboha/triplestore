@@ -14,7 +14,7 @@ object TestSqlExpandableStore {
     val store = new SqlExpandableStore("jdbc:mysql://localhost:3306/triplestore_test?user=triplestore")
     // Insert
     val test = store.notion("Test")
-    val is_a = store.notions.filter( _.data.contains("is a") ).next()
+    val is_a = store.notions.find( _.data.contains("is a") ).get
     store.relation(test, is_a, test)
 
     // Print

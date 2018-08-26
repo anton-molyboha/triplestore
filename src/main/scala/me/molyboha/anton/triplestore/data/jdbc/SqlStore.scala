@@ -1,6 +1,6 @@
 package me.molyboha.anton.triplestore.data.jdbc
 
-import me.molyboha.anton.triplestore.data.model.{Notion, Relation, Store}
+import me.molyboha.anton.triplestore.data.model.{CloseableIterator, Notion, Relation, Store}
 
 class SqlStore(connectionString: String) extends Store[String] {
   //protected val connection: java.sql.Connection = java.sql.DriverManager.getConnection("jdbc:mariadb://localhost:3306/triplestore_test?user=triplestore");
@@ -8,19 +8,19 @@ class SqlStore(connectionString: String) extends Store[String] {
 
   protected class SqlNotion(val id: Int, val name: Option[String], val asrelation: Option[Int]) extends Notion[String] {
     override val data: Option[String] = name
-    override def subjectOf: Iterator[Relation[String]] = {
+    override def subjectOf: CloseableIterator[Relation[String]] = {
       val statement = connection.prepareStatement(relationSql + " AND relation.subject = ?")
       statement.setInt(1, id)
       val sqlres = statement.executeQuery()
       SqlUtils.iterate(sqlres, relationMapper _)
     }
-    override def verbOf: Iterator[Relation[String]] = {
+    override def verbOf: CloseableIterator[Relation[String]] = {
       val statement = connection.prepareStatement(relationSql + " AND relation.verb = ?")
       statement.setInt(1, id)
       val sqlres = statement.executeQuery()
       SqlUtils.iterate(sqlres, relationMapper _)
     }
-    override def objOf: Iterator[Relation[String]] = {
+    override def objOf: CloseableIterator[Relation[String]] = {
       val statement = connection.prepareStatement(relationSql + " AND relation.object = ?")
       statement.setInt(1, id)
       val sqlres = statement.executeQuery()
@@ -58,7 +58,12 @@ class SqlStore(connectionString: String) extends Store[String] {
   protected def notionById(id: Int): SqlNotion = {
     notionByIdStatement.setInt(1, id)
     val resultSet = notionByIdStatement.executeQuery()
-    SqlUtils.iterate(resultSet, SqlNotion.apply _).next()
+    val it = SqlUtils.iterate(resultSet, SqlNotion.apply _)
+    try {
+      it.next()
+    } finally {
+      it.close()
+    }
   }
 
   private val relationSql = "SELECT relation.id, subj.id, subj.name, subj.asrelation, " +
@@ -78,9 +83,10 @@ class SqlStore(connectionString: String) extends Store[String] {
       notion_id, notion_name)
   }
 
-  override def notions: Iterator[Notion[String]] = {
+  override def notions: CloseableIterator[Notion[String]] = {
     val selectAllNotions = connection.prepareStatement("SELECT id, name, asrelation FROM notion")
     val notionSet = selectAllNotions.executeQuery()
+    selectAllNotions.closeOnCompletion()
     SqlUtils.iterate(notionSet, SqlNotion.apply _)
   }
 }

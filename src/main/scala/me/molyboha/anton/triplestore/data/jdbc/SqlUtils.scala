@@ -1,12 +1,13 @@
 package me.molyboha.anton.triplestore.data.jdbc
 
 import java.sql.ResultSet
+import me.molyboha.anton.triplestore.data.model.CloseableIterator
 
 object SqlUtils {
   trait ResultGetter[T] {
     def get(set: ResultSet, fieldIndex: Int): T
   }
-  private abstract class RowIterator[R](set: ResultSet) extends Iterator[R] {
+  private abstract class RowIterator[R](set: ResultSet) extends CloseableIterator[R] {
     protected def readRow: R
     private def step(): Option[R] = {
       if( set.next() ) {
@@ -17,11 +18,14 @@ object SqlUtils {
       }
     }
     private var curRow: Option[R] = step()
-    override def hasNext: Boolean = curRow.nonEmpty
-    override def next(): R = {
+    override def hasNextImpl: Boolean = curRow.nonEmpty
+    override def nextImpl(): R = {
       val res = curRow.get
       curRow = step()
       res
+    }
+    override def onClose(): Unit = {
+      set.close()
     }
   }
   implicit object ResultGetterInt extends ResultGetter[Int] {
@@ -39,14 +43,14 @@ object SqlUtils {
   implicit def resultGetterNullable[T](implicit getter: ResultGetter[T]): ResultGetter[Option[T]] = {
     new ResultGetterOption[T](getter)
   }
-  def iterate[R, T1](set: ResultSet, mapper: (T1) => R)(implicit getter1: ResultGetter[T1]): Iterator[R] = {
+  def iterate[R, T1](set: ResultSet, mapper: (T1) => R)(implicit getter1: ResultGetter[T1]): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(getter1.get(set, 1))
     }
   }
   def iterate[R, T1, T2](set: ResultSet, mapper: (T1, T2) => R)
                         (implicit getter1: ResultGetter[T1],
-                         getter2: ResultGetter[T2]): Iterator[R] = {
+                         getter2: ResultGetter[T2]): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(getter1.get(set, 1), getter2.get(set, 2))
     }
@@ -54,7 +58,7 @@ object SqlUtils {
   def iterate[R, T1, T2, T3](set: ResultSet, mapper: (T1, T2, T3) => R)
                         (implicit getter1: ResultGetter[T1],
                          getter2: ResultGetter[T2],
-                         getter3: ResultGetter[T3]): Iterator[R] = {
+                         getter3: ResultGetter[T3]): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(getter1.get(set, 1),
                                                  getter2.get(set, 2),
@@ -67,7 +71,7 @@ object SqlUtils {
                                  getter1: ResultGetter[T1],
                                  getter2: ResultGetter[T2],
                                  getter3: ResultGetter[T3],
-                                 getter4: ResultGetter[T4]): Iterator[R] = {
+                                 getter4: ResultGetter[T4]): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(getter1.get(set, 1),
         getter2.get(set, 2),
@@ -83,7 +87,7 @@ object SqlUtils {
                                      getter2: ResultGetter[T2],
                                      getter3: ResultGetter[T3],
                                      getter4: ResultGetter[T4],
-                                     getter5: ResultGetter[T5]): Iterator[R] = {
+                                     getter5: ResultGetter[T5]): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(getter1.get(set, 1),
         getter2.get(set, 2),
@@ -102,7 +106,7 @@ object SqlUtils {
                                      getter4: ResultGetter[T4],
                                      getter5: ResultGetter[T5],
                                      getter6: ResultGetter[T6]
-                                    ): Iterator[R] = {
+                                    ): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(
         getter1.get(set, 1),
@@ -124,7 +128,7 @@ object SqlUtils {
                                          getter5: ResultGetter[T5],
                                          getter6: ResultGetter[T6],
                                          getter7: ResultGetter[T7]
-                                        ): Iterator[R] = {
+                                        ): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(
         getter1.get(set, 1),
@@ -148,7 +152,7 @@ object SqlUtils {
                                              getter6: ResultGetter[T6],
                                              getter7: ResultGetter[T7],
                                              getter8: ResultGetter[T8]
-                                            ): Iterator[R] = {
+                                            ): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(
         getter1.get(set, 1),
@@ -174,7 +178,7 @@ object SqlUtils {
                                                  getter7: ResultGetter[T7],
                                                  getter8: ResultGetter[T8],
                                                  getter9: ResultGetter[T9]
-                                                ): Iterator[R] = {
+                                                ): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(
         getter1.get(set, 1),
@@ -202,7 +206,7 @@ object SqlUtils {
                                                      getter8: ResultGetter[T8],
                                                      getter9: ResultGetter[T9],
                                                      getter10: ResultGetter[T10]
-                                                    ): Iterator[R] = {
+                                                    ): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(
         getter1.get(set, 1),
@@ -232,7 +236,7 @@ object SqlUtils {
                                                           getter9: ResultGetter[T9],
                                                           getter10: ResultGetter[T10],
                                                           getter11: ResultGetter[T11]
-                                                         ): Iterator[R] = {
+                                                         ): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(
         getter1.get(set, 1),
@@ -264,7 +268,7 @@ object SqlUtils {
                                                                getter10: ResultGetter[T10],
                                                                getter11: ResultGetter[T11],
                                                                getter12: ResultGetter[T12]
-                                                              ): Iterator[R] = {
+                                                              ): CloseableIterator[R] = {
     new RowIterator[R](set) {
       override protected def readRow: R = mapper(
         getter1.get(set, 1),

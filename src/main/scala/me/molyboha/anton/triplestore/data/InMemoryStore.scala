@@ -1,5 +1,6 @@
 package me.molyboha.anton.triplestore.data
 import me.molyboha.anton.triplestore.data.model
+import me.molyboha.anton.triplestore.data.model.CloseableIterator
 
 class InMemoryStore[T] extends model.Factory[T] with model.Store[T]
 {
@@ -25,7 +26,7 @@ class InMemoryStore[T] extends model.Factory[T] with model.Store[T]
     res
   }
 
-  override def notions: Iterator[model.Notion[T]] = data.iterator
+  override def notions: CloseableIterator[model.Notion[T]] = data.iterator
 }
 
 object InMemoryStore
@@ -36,11 +37,11 @@ object InMemoryStore
     var verbOfLst: List[Relation[T]] = List()
     var objOfLst: List[Relation[T]] = List()
 
-    override def subjectOf: Iterator[model.Relation[T]] = subjectOfLst.iterator
+    override def subjectOf: CloseableIterator[model.Relation[T]] = subjectOfLst.iterator
 
-    override def verbOf: Iterator[model.Relation[T]] = verbOfLst.iterator
+    override def verbOf: CloseableIterator[model.Relation[T]] = verbOfLst.iterator
 
-    override def objOf: Iterator[model.Relation[T]] = objOfLst.iterator
+    override def objOf: CloseableIterator[model.Relation[T]] = objOfLst.iterator
   }
 
   private class Relation[T](store: InMemoryStore[T], override val subject: Notion[T], override val verb: Notion[T], override val obj: Notion[T], override val data: Option[T]) extends Notion[T](store, data) with model.Relation[T]
