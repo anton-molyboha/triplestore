@@ -165,10 +165,10 @@ trait CloseableIterator[+T] extends Iterator[T] with Closeable {
 }
 
 object CloseableIterator {
-  def wrap[T](it: Iterator[T], onClose: () => Unit): CloseableIterator[T] = new CloseableIterator[T] {
+  def wrap[T](it: Iterator[T], closeOp: () => Unit): CloseableIterator[T] = new CloseableIterator[T] {
     override protected def hasNextImpl: Boolean = it.hasNext
     override protected def nextImpl(): T = it.next()
-    override protected def onClose(): Unit = onClose()
+    override protected def onClose(): Unit = closeOp()
   }
 
   implicit def fromIterator[T](it: Iterator[T]): CloseableIterator[T] = new CloseableIterator[T] {
